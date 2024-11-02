@@ -1,18 +1,19 @@
 {
-    "name": "Azure Terraform Development",
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "name": "Terraform Azure Development",
+    "image": "ubuntu:latest",
     "features": {
         "ghcr.io/devcontainers/features/azure-cli:1": "latest",
         "ghcr.io/devcontainers/features/terraform:1": "latest"
     },
-    "postCreateCommand": "az login",
     "customizations": {
         "vscode": {
             "extensions": [
                 "hashicorp.terraform",
                 "ms-azuretools.vscode-azureterraform",
-                "ms-vscode.azurecli"
+                "ms-azure-devops.azure-pipelines"
             ]
         }
-    }
+    },
+    "postCreateCommand": "echo 'echo \"Please run: az login\" to authenticate with Azure' >> ~/.bashrc",
+    "remoteUser": "root"
 }
