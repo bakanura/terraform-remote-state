@@ -1,3 +1,9 @@
+# Create Resource Group
+resource "azurerm_resource_group" "state" {
+  name     = "terraform-state-rg"
+  location = "westeurope"  # Change this to your preferred region
+}
+
 # Create Storage Account
 resource "azurerm_storage_account" "state" {
   name                     = "tfstate${random_string.suffix.result}"

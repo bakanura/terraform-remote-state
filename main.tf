@@ -15,6 +15,12 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  features {
+    
+  }
+}
+
 # Generate random suffix for globally unique names
 resource "random_string" "suffix" {
   length  = 6
