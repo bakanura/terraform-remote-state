@@ -1,27 +1,43 @@
+# Outputs for backend configuration
+output "storage_account_name" {
+  value = azurerm_storage_account.state.name
+}
+
+output "container_name" {
+  value = azurerm_storage_container.state.name
+}
+
 output "resource_group_name" {
-  value = azurerm_resource_group.tfstate.name
-  description = "The name of the resource group"
+  value = azurerm_resource_group.state.name
 }
 
-output "access_key" {
-  value = azurerm_storage_account.tfstate.primary_access_key
-  description = "The primary access key for the storage account"
-  sensitive = true
+output "backend_config" {
+  value = <<EOF
+
+backend "azurerm" {
+  resource_group_name  = "${azurerm_resource_group.state.name}"
+  storage_account_name = "${azurerm_storage_account.state.name}"
+  container_name       = "${azurerm_storage_container.state.name}"
+  key                 = "terraform.tfstate"
+}
+EOF
 }
 
-# Output the backend configuration for easy copy-paste
-output "backend_configuration" {
-  description = "Backend configuration for remote state"
-  value = 
-  <<EOF
+output "next_steps" {
+  value = <<EOF
 
-  terraform {
-    backend "azurerm" {
-      resource_group_name  = "${azurerm_resource_group.tfstate.name}"
-      storage_account_name = "${azurerm_storage_account.tfstate.name}"
-      container_name       = "${azurerm_storage_container.tfstate.name}"
-      key                 = "terraform.tfstate"
-    }
-  }
-  EOF
+=== BACKEND CREATED SUCCESSFULLY ===
+
+Your Azure Storage backend has been created with:
+- Resource Group: ${azurerm_resource_group.state.name}
+- Storage Account: ${azurerm_storage_account.state.name}
+- Container: ${azurerm_storage_container.state.name}
+
+The backend.tf file has been created automatically.
+
+To initialize the backend, run:
+./init-backend.sh
+
+After this, your state will be stored remotely in Azure.
+EOF
 }
