@@ -16,6 +16,11 @@ resource "azurerm_storage_account" "state" {
   blob_properties {
     versioning_enabled = true
   }
+
+   lifecycle {
+    prevent_destroy = true
+  }
+
 }
 
 # Create Blob Container
@@ -23,4 +28,8 @@ resource "azurerm_storage_container" "state" {
   name                  = "tfstate"
   storage_account_name  = azurerm_storage_account.state.name
   container_access_type = "private"
+
+   lifecycle {
+    prevent_destroy = true
+  }
 }

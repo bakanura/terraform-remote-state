@@ -19,8 +19,11 @@ resource "local_file" "init_script" {
   content  = <<EOF
 #!/bin/bash
 echo "Initializing Terraform with Azure backend..."
-terraform init -reconfigure
+terraform init -reconfigure -input=false
 echo "Backend initialization complete. Your state is now stored in Azure."
+# Remove local state files
+rm -rf terraform.tfstate
+rm -rf terraform.tfstate.backup
 EOF
 
   provisioner "local-exec" {

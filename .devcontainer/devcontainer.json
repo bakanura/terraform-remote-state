@@ -10,7 +10,8 @@
             "extensions": [
                 "hashicorp.terraform",
                 "ms-azuretools.vscode-azureterraform",
-                "ms-azure-devops.azure-pipelines"
+                "ms-azure-devops.azure-pipelines",
+                "betajob.modulestf"
             ]
         }
     },

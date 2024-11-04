@@ -39,3 +39,6 @@ Thumbs.db
 # Terraform dotfiles etc.
 .terraform
 *.planfile
+*.lock.hcl
+backend.tf
+init-backend.tf
