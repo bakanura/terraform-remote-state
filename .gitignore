@@ -41,4 +41,4 @@ Thumbs.db
 *.planfile
 *.lock.hcl
 backend.tf
-init-backend.tf
+init-backend.sh
