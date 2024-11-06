@@ -41,3 +41,18 @@ To initialize the backend, run:
 After this, your state will be stored remotely in Azure.
 EOF
 }
+
+
+# Outputs to verify values
+output "client_id" {
+  value = azuread_application.terraform_sp.client_id # Output the `app_id` as the client_id
+}
+
+output "client_secret" {
+  value     = azuread_service_principal_password.terraform_sp_password.value
+  sensitive = true # Mark the secret as sensitive to avoid it being displayed in the logs
+}
+
+output "tenant_id" {
+  value = data.azuread_client_config.current.tenant_id
+}
