@@ -6,5 +6,4 @@ variable "prevent_destroy" {
 
 variable "tenant_id" {
   type    = string
-  default = ""
 }
