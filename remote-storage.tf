@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "state" {
   }
 
   lifecycle {
-    prevent_destroy = var.prevent_destroy
+    prevent_destroy = true
   }
 
 }
@@ -30,6 +30,6 @@ resource "azurerm_storage_container" "state" {
   container_access_type = "private"
 
   lifecycle {
-    prevent_destroy = var.prevent_destroy
+    prevent_destroy = true
   }
 }
