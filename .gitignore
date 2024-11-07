@@ -42,3 +42,5 @@ Thumbs.db
 *.lock.hcl
 backend.tf
 init-backend.sh
+*.tfstate
+*.tfstate.*

@@ -2,7 +2,7 @@
 # Create the Azure AD Application (this is your app that will become the service principal)
 resource "azuread_application" "terraform_sp" {
   display_name = "terraform-service-principal"
-  owners       = [data.azuread_client_config.current.object_id]
+  owners       = [data.azurerm_client_config.current.object_id]
 }
 
 # Create the Service Principal linked to the Azure AD Application

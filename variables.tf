@@ -3,7 +3,3 @@ variable "prevent_destroy" {
   type        = bool
   default     = true
 }
-
-variable "tenant_id" {
-  type    = string
-}
