@@ -22,7 +22,9 @@
       "echo 'export ARM_CLIENT_ID=$(az ad signed-in-user show --query objectId -o tsv)' >> ~/.bashrc",
       "echo 'Starting Azure login, please visit the URL in your browser and enter the code.'",
       "az login --use-device-code",
-      "echo 'Azure CLI login completed. You may need to restart the container or open a new terminal session.'"
+      "echo 'Azure CLI login completed. You may need to restart the container or open a new terminal session.'",
+      "git config --global user.name \"$(git config --global user.name)\"",
+      "git config --global user.email \"$(git config --global user.email)\""
     ],
     "remoteUser": "root"
   }
