@@ -16,6 +16,19 @@
       }
     },
     //"postCreateCommand": [],
-    "remoteUser": "root"
+    "remoteUser": "root",
+    "mounts": [
+        {
+            "source": "${env:HOME}/.ssh",
+            "target": "/home/vscode/.ssh",
+            "type": "bind"
+        },
+
+        {
+            "source": "${env:HOME}/.azure",
+            "target": "/root/.azure",
+            "type": "bind"
+        }
+    ]
   }
   
