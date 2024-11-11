@@ -1,34 +1,42 @@
 {
-    "name": "Terraform Azure Development",
-    "image": "ubuntu:latest",
-    "features": {
+  "name": "Terraform Azure Development",
+  "image": "ubuntu:latest",
+  "features": {
       "ghcr.io/devcontainers/features/azure-cli:1": "latest",
-      "ghcr.io/devcontainers/features/terraform:1": "latest"
-    },
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "hashicorp.terraform",
-          "ms-azuretools.vscode-azureterraform",
-          "ms-azure-devops.azure-pipelines",
-          "betajob.modulestf"
-        ]
-      }
-    },
-    //"postCreateCommand": [],
-    "remoteUser": "root",
-    "mounts": [
-        {
-            "source": "${env:HOME}/.ssh",
-            "target": "/home/vscode/.ssh",
-            "type": "bind"
-        },
+      "ghcr.io/devcontainers/features/terraform:1": "latest",
+      "ghcr.io/devcontainers/features/common-utils:1": {
+          "installZsh": "true",
+          "installOhMyZsh": "true",
+          "upgradePackages": "true"
+      },
+      "ghcr.io/devcontainers/features/sshd:1":"latest"
+  },
 
-        {
-            "source": "${env:HOME}/.azure",
-            "target": "/root/.azure",
-            "type": "bind"
-        }
-    ]
-  }
+  "customizations": {
+      "vscode": {
+          "extensions": [
+              "hashicorp.terraform",
+              "ms-azuretools.vscode-azureterraform",
+              "ms-azure-devops.azure-pipelines",
+              "ms-azuretools.vscode-azurevirtualmachines",
+              "ms-vscode-remote.vscode-remote-extensionpack"
+          ]
+      }
+  },
+  //"postCreateCommand": [],
+  "remoteUser": "root",
+  "mounts": [
+      {
+          "source": "${env:HOME}/.ssh",
+          "target": "/home/vscode/.ssh",
+          "type": "bind"
+      },
+
+      {
+          "source": "${env:HOME}/.azure",
+          "target": "/root/.azure",
+          "type": "bind"
+      }
+  ]
+}
   
