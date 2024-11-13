@@ -28,6 +28,8 @@
   "remoteUser": "root",
   "mounts": [
       {
+        //Used for local development
+        //Allows for use of local wsl's ssh certs for container  
           "source": "${env:HOME}/.ssh",
           "target": "/home/vscode/.ssh",
           "type": "bind"
