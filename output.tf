@@ -33,8 +33,6 @@ Your Azure Storage backend has been created with:
 - Storage Account: ${azurerm_storage_account.state.name}
 - Container: ${azurerm_storage_container.state.name}
 
-The backend.tf file has been created automatically.
-
 To initialize the backend, run:
 ./init-backend.sh
 
@@ -43,21 +41,21 @@ EOF
 }
 
 
-# Outputs to verify values
-output "client_id" {
-  value = azuread_application.terraform_sp.client_id # Output the `app_id` as the client_id
-}
+# # Outputs to verify values
+# output "client_id" {
+#   value = azuread_application.terraform_sp.client_id # Output the `app_id` as the client_id
+# }
 
-output "client_secret" {
-  value     = azuread_service_principal_password.terraform_sp_password.value
-  sensitive = true # Mark the secret as sensitive to avoid it being displayed in the logs
-}
+# output "client_secret" {
+#   value     = azuread_service_principal_password.terraform_sp_password.value
+#   sensitive = true # Mark the secret as sensitive to avoid it being displayed in the logs
+# }
 
-output "tenant_id" {
-  value = data.azurerm_client_config.current.tenant_id
-}
+# output "tenant_id" {
+#   value = data.azurerm_client_config.current.tenant_id
+# }
 
 
-output "account_id" {
-  value = data.azurerm_client_config.current.client_id
-}
+# output "account_id" {
+#   value = data.azurerm_client_config.current.client_id
+# }

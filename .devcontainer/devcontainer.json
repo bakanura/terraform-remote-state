@@ -15,11 +15,12 @@
   "customizations": {
       "vscode": {
           "extensions": [
-              "hashicorp.terraform",
-              "ms-azuretools.vscode-azureterraform",
-              "ms-azure-devops.azure-pipelines",
-              "ms-azuretools.vscode-azurevirtualmachines",
-              "ms-vscode-remote.vscode-remote-extensionpack"
+            "hashicorp.terraform",
+            "ms-azuretools.vscode-azureterraform",
+            "ms-azure-devops.azure-pipelines",
+            "ms-azuretools.vscode-azurevirtualmachines",
+            "ms-vscode-remote.vscode-remote-extensionpack",
+            "eamodio.gitlens"
           ]
       }
   },
