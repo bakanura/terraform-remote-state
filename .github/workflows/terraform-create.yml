@@ -49,11 +49,27 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+    # Setup Terraform Backend (if necessary)
+    - name: Setup Terraform Backend
+      run: |
+        # Example of configuring the backend with Azure Blob Storage for remote state
+        cat <<EOF > backend.tf
+        terraform {
+          backend "azurerm" {
+            resource_group_name   = "yourResourceGroup"
+            storage_account_name  = "yourStorageAccount"
+            container_name        = "yourContainer"
+            key                   = "terraform.tfstate"
+          }
+        }
+        EOF
+        echo "Backend configuration written to backend.tf."
+
     # Initialize Terraform
     - name: Terraform Init
       run: terraform init
 
-    # Terraform Format
+    # Terraform Format (ensure that formatting is correct)
     - name: Terraform Format
       run: terraform fmt -check
 
@@ -120,3 +136,23 @@ jobs:
       if: github.event_name == 'push' && env.destroy == 'true'
       run: terraform destroy -auto-approve -input=false
 
+    # Capture Terraform Outputs (if needed)
+    - name: Capture Terraform Outputs
+      if: github.event_name == 'push' && env.destroy == 'false'
+      run: |
+        terraform output -json > terraform_outputs.json
+        echo "Terraform outputs captured."
+        
+        # Example: Set the output variables as GitHub environment variables if needed
+        export BUCKET_NAME=$(terraform output -raw bucket_name)
+        export STORAGE_ACCOUNT_ID=$(terraform output -raw storage_account_id)
+        
+        echo "BUCKET_NAME=${BUCKET_NAME}" >> $GITHUB_ENV
+        echo "STORAGE_ACCOUNT_ID=${STORAGE_ACCOUNT_ID}" >> $GITHUB_ENV
+
+    # Optionally: Upload Terraform outputs as an artifact
+    - name: Upload Terraform Outputs as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-outputs
+        path: terraform_outputs.json
