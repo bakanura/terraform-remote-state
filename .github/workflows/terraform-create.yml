@@ -82,21 +82,4 @@ jobs:
             echo "destroy=false" >> $GITHUB_ENV
           fi
         else
-          # If there is no previous commit, skip comparison and assume no destroy
-          echo "No previous commit found. Skipping destroy check."
-          echo "destroy=false" >> $GITHUB_ENV
-
-    # Terraform Plan (Runs only on push to master)
-    - name: Terraform Plan
-      if: github.event_name == 'push'
-      run: terraform plan -input=false -no-color
-
-    # Terraform Apply (Runs only on push to master)
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push' && env.destroy == 'false'
-      run: terraform apply -auto-approve -input=false
-
-    # Terraform Destroy (Runs only if specific changes in remote-storage.tf are detected)
-    - name: Terraform Destroy
-      if: github.event_name == 'push' && env.destroy == 'true'
-      run: terraform destroy -auto-approve -input=false
+          # If there is no previous commit, skip
