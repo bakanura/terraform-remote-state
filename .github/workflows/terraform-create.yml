@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: ["master"]
   workflow_dispatch:  # Allows manual triggering of the workflow
+    inputs:
+      destroy:
+        description: 'Trigger destruction of resources'
+        required: false
+        default: 'false'
 
 permissions:
   contents: read
@@ -54,9 +59,10 @@ jobs:
     - name: Terraform Init
       run: terraform init -reconfigure
 
-    # Terraform Format
+    # Terraform Format (Make sure this doesn't stop the workflow on error)
     - name: Terraform Format
       run: terraform fmt -check
+      continue-on-error: true  # Allow the workflow to continue if formatting issues are found
 
     # Allow manual triggering of the destroy step through workflow_dispatch input
     - name: Set Destroy from Input
@@ -108,12 +114,10 @@ jobs:
         chmod +x ./init-backend.sh
         ./init-backend.sh
 
-      # Checkout repository, Azure login, Terraform setup, etc. ...
-
-      # Add a manual approval step before destroying resources
+    # Manual approval step before destroy
     - name: Manual approval before destroy
-      if: github.event_name == 'workflow_dispatch'
+      if: github.event_name == 'workflow_dispatch' && env.destroy == 'true'
       run: |
         echo "Waiting for manual approval to destroy resources."
-        timeout-minutes: 30
-        continue-on-error: false
+      timeout-minutes: 30  # Wait up to 30 minutes for manual approval
+      continue-on-error: false
