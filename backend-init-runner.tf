@@ -33,7 +33,7 @@ EOF2
 
 # Initialize Terraform with Azure backend
 echo "Initializing Terraform with Azure backend..."
-terraform init -migrate-state
+terraform init -force-copy
 echo "Backend initialization complete. Your state is now stored in Azure."
 
 # Clean up local state files
