@@ -107,3 +107,13 @@ jobs:
         echo "Running init-backend.sh to initialize backend and move state to new remote storage."
         chmod +x ./init-backend.sh
         ./init-backend.sh
+
+      # Checkout repository, Azure login, Terraform setup, etc. ...
+
+      # Add a manual approval step before destroying resources
+    - name: Manual approval before destroy
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "Waiting for manual approval to destroy resources."
+        timeout-minutes: 30
+        continue-on-error: false
