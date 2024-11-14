@@ -20,7 +20,8 @@
             "ms-azure-devops.azure-pipelines",
             "ms-azuretools.vscode-azurevirtualmachines",
             "ms-vscode-remote.vscode-remote-extensionpack",
-            "eamodio.gitlens"
+            "eamodio.gitlens",
+            "github.vscode-github-actions"
           ]
       }
   },
