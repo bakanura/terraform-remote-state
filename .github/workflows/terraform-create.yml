@@ -62,18 +62,15 @@ jobs:
     - name: Check Changes in remote-storage.tf
       id: check_changes
       run: |
-        # Fetch the previous commit to compare (only if it exists)
         git fetch origin master
         
-        # Check if there are enough commits to compare (e.g., HEAD~1 exists)
         if git rev-parse --verify HEAD~1 > /dev/null 2>&1; then
-          # Get the specific lines (21 and 33) from both the current and previous commits
           CURRENT_LINE_21=$(git show HEAD:remote-storage.tf | sed -n '21p')
           CURRENT_LINE_33=$(git show HEAD:remote-storage.tf | sed -n '33p')
           PREVIOUS_LINE_21=$(git show HEAD~1:remote-storage.tf | sed -n '21p')
           PREVIOUS_LINE_33=$(git show HEAD~1:remote-storage.tf | sed -n '33p')
           
-          # Debugging output (to verify correct lines are being fetched)
+          # Debugging output
           echo "Current Line 21: $CURRENT_LINE_21"
           echo "Previous Line 21: $PREVIOUS_LINE_21"
           echo "Current Line 33: $CURRENT_LINE_33"
@@ -89,7 +86,6 @@ jobs:
             echo "destroy=false" >> $GITHUB_ENV
           fi
         else
-          # If there is no previous commit, skip comparison and assume no destroy
           echo "No previous commit found. Skipping destroy check."
           echo "destroy=false" >> $GITHUB_ENV
         fi
@@ -108,7 +104,7 @@ jobs:
 
     # Terraform Plan (Runs only on push to master)
     - name: Terraform Plan
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && env.destroy == 'false'
       run: |
         terraform plan -input=false -no-color \
           -var="ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" \
@@ -118,7 +114,7 @@ jobs:
 
     # Terraform Apply (Runs only on push to master unless destroy is triggered)
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push' && env.destroy == 'false'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.destroy == 'false'
       run: |
         terraform apply -auto-approve -input=false \
           -var="ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" \
@@ -138,9 +134,8 @@ jobs:
 
     # Initialize Backend (Move state to new backend)
     - name: Initialize Backend (Move state to new backend)
-      if: github.event_name == 'push' && env.destroy == 'false'  # This step runs only after apply
+      if: github.event_name == 'push' && env.destroy == 'false'
       run: |
         echo "Running init-backend.sh to initialize backend and move state to new remote storage."
         chmod +x ./init-backend.sh
-        # Automatically accept the state migration by piping 'yes' to the prompt
         ./init-backend.sh
