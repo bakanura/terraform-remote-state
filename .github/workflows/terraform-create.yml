@@ -61,24 +61,30 @@ jobs:
     - name: Check Changes in remote-storage.tf
       id: check_changes
       run: |
-        # Fetch the previous commit to compare
+        # Fetch the previous commit to compare (only if it exists)
         git fetch origin master
         
-        # Get the specific lines (21 and 33) from both the current and previous commits
-        CURRENT_LINE_21=$(git show HEAD:remote-storage.tf | sed -n '21p')
-        CURRENT_LINE_33=$(git show HEAD:remote-storage.tf | sed -n '33p')
-        PREVIOUS_LINE_21=$(git show HEAD~1:remote-storage.tf | sed -n '21p')
-        PREVIOUS_LINE_33=$(git show HEAD~1:remote-storage.tf | sed -n '33p')
-
-        # Compare and check if the values changed from true to false
-        if [[ "$CURRENT_LINE_21" == *"true"* && "$PREVIOUS_LINE_21" == *"false"* ]] || \
-           [[ "$CURRENT_LINE_33" == *"true"* && "$PREVIOUS_LINE_33" == *"false"* ]]; then
-          echo "Changes detected in remote-storage.tf. Triggering destroy."
-          echo "destroy=true" >> $GITHUB_ENV
+        # Check if there are enough commits to compare (e.g., HEAD~1 exists)
+        if git rev-parse --verify HEAD~1 > /dev/null 2>&1; then
+          # Get the specific lines (21 and 33) from both the current and previous commits
+          CURRENT_LINE_21=$(git show HEAD:remote-storage.tf | sed -n '21p')
+          CURRENT_LINE_33=$(git show HEAD:remote-storage.tf | sed -n '33p')
+          PREVIOUS_LINE_21=$(git show HEAD~1:remote-storage.tf | sed -n '21p')
+          PREVIOUS_LINE_33=$(git show HEAD~1:remote-storage.tf | sed -n '33p')
+          
+          # Compare and check if the values changed from true to false
+          if [[ "$CURRENT_LINE_21" == *"true"* && "$PREVIOUS_LINE_21" == *"false"* ]] || \
+             [[ "$CURRENT_LINE_33" == *"true"* && "$PREVIOUS_LINE_33" == *"false"* ]]; then
+            echo "Changes detected in remote-storage.tf. Triggering destroy."
+            echo "destroy=true" >> $GITHUB_ENV
+          else
+            echo "No changes detected that require destroy."
+            echo "destroy=false" >> $GITHUB_ENV
+          fi
         else
-          echo "No changes detected that require destroy."
+          # If there is no previous commit, skip comparison and assume no destroy
+          echo "No previous commit found. Skipping destroy check."
           echo "destroy=false" >> $GITHUB_ENV
-        fi
 
     # Terraform Plan (Runs only on push to master)
     - name: Terraform Plan
