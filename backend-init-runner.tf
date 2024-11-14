@@ -33,7 +33,7 @@ EOF2
 
 # Initialize Terraform with Azure backend
 echo "Initializing Terraform with Azure backend..."
-terraform init -reconfigure -input=false
+terraform init -reconfigure -auto-approve
 echo "Backend initialization complete. Your state is now stored in Azure."
 
 # Clean up local state files

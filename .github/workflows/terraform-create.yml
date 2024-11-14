@@ -50,7 +50,7 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-    # Initialize Terraform
+    # Initialize Terraform (Runs only on push to master)
     - name: Terraform Init
       run: terraform init -reconfigure
 
@@ -136,10 +136,38 @@ jobs:
           -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
           -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
+    # Create init-backend.sh script to initialize the backend
+    - name: Create init-backend.sh script
+      run: |
+        echo "Creating init-backend.sh script..."
+        cat <<EOF1 > init-backend.sh
+#!/bin/bash
+
+# Create backend.tf configuration file
+cat <<EOF2 > backend.tf
+terraform {
+   backend "azurerm" {
+     resource_group_name  = "\${azurerm_resource_group.state.name}"
+     storage_account_name = "\${azurerm_storage_account.state.name}"
+     container_name       = "\${azurerm_storage_container.state.name}"
+     key                  = "terraform.tfstate"
+   }
+}
+EOF2
+
+# Initialize Terraform with Azure backend
+echo "Initializing Terraform with Azure backend..."
+terraform init -reconfigure
+echo "Backend initialization complete. Your state is now stored in Azure."
+
+# Clean up local state files
+rm -rf terraform.tfstate
+rm -rf terraform.tfstate.backup
+EOF1
+
     # Run init-backend.sh after applying Terraform to move the state to the new backend
-    - name: Initialize Backend (Move state to new backend)
+    - name: Run init-backend.sh
       if: github.event_name == 'push' && env.destroy == 'false'  # This step runs only after apply
       run: |
-        echo "Running init-backend.sh to initialize backend and move state to new remote storage."
         chmod +x ./init-backend.sh
         ./init-backend.sh
