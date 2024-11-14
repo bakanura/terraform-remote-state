@@ -142,6 +142,5 @@ jobs:
       run: |
         echo "Running init-backend.sh to initialize backend and move state to new remote storage."
         chmod +x ./init-backend.sh
-        # Set the environment variable to suppress interactive prompts
-        export TF_IN_AUTOMATION=true
-        ./init-backend.sh
+        # Automatically accept the state migration by piping 'yes' to the prompt
+        yes "yes" | ./init-backend.sh
