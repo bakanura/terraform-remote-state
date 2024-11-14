@@ -5,7 +5,7 @@ on:
     branches: ["master"]
   pull_request:
     branches: ["master"]
-  workflow_dispatch:  # Allows manual triggering of the workflow
+  workflow_dispatch:  # Allows manual triggering of the workflow with an input parameter
 
 permissions:
   contents: read
@@ -93,6 +93,18 @@ jobs:
           echo "destroy=false" >> $GITHUB_ENV
         fi  # <-- Closing the 'if' block properly
 
+    # Allow manual triggering of the destroy step through workflow_dispatch input
+    - name: Set Destroy from Input
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        if [[ "${{ github.event.inputs.destroy }}" == "true" ]]; then
+          echo "Manual destroy trigger detected."
+          echo "destroy=true" >> $GITHUB_ENV
+        else
+          echo "Manual destroy trigger not detected."
+          echo "destroy=false" >> $GITHUB_ENV
+        fi
+
     # Terraform Plan (Runs only on push to master)
     - name: Terraform Plan
       if: github.event_name == 'push'
@@ -103,7 +115,8 @@ jobs:
       if: github.ref == 'refs/heads/master' && github.event_name == 'push' && env.destroy == 'false'
       run: terraform apply -auto-approve -input=false
 
-    # Terraform Destroy (Runs only if specific changes in remote-storage.tf are detected)
+    # Terraform Destroy (Runs only if specific changes in remote-storage.tf are detected or manually triggered)
     - name: Terraform Destroy
       if: github.event_name == 'push' && env.destroy == 'true'
       run: terraform destroy -auto-approve -input=false
+
