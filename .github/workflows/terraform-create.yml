@@ -31,7 +31,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    # Azure Login
+    # Azure Login using Service Principal credentials
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -43,7 +43,7 @@ jobs:
             "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
           }
 
-    # Setup Terraform
+    # Setup Terraform CLI
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
@@ -51,13 +51,13 @@ jobs:
 
     # Initialize Terraform
     - name: Terraform Init
-      run: terraform init
+      run: terraform init -reconfigure
 
     # Terraform Format
     - name: Terraform Format
       run: terraform fmt -check
 
-    # Check if specific lines in remote-storage.tf change from true to false
+    # Check for changes in remote-storage.tf
     - name: Check Changes in remote-storage.tf
       id: check_changes
       run: |
@@ -91,7 +91,7 @@ jobs:
           # If there is no previous commit, skip comparison and assume no destroy
           echo "No previous commit found. Skipping destroy check."
           echo "destroy=false" >> $GITHUB_ENV
-        fi  # <-- Closing the 'if' block properly
+        fi
 
     # Allow manual triggering of the destroy step through workflow_dispatch input
     - name: Set Destroy from Input
