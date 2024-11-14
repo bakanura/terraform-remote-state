@@ -1,8 +1,11 @@
 name: 'Terraform Azure Deployment'
+
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
+    branches: ["master"]
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 permissions:
   contents: read
@@ -49,18 +52,45 @@ jobs:
     # Initialize Terraform
     - name: Terraform Init
       run: terraform init
-      
+
     # Terraform Format
     - name: Terraform Format
       run: terraform fmt -check
-      
-    # Terraform Plan
-    - name: Terraform Plan
-      if: github.event_name == 'pull_request'
-      run: terraform plan -input=false -no-color
-      continue-on-error: true
 
-    # Terraform Apply
+    # Check if specific lines in remote-storage.tf change from true to false
+    - name: Check Changes in remote-storage.tf
+      id: check_changes
+      run: |
+        # Fetch the previous commit to compare
+        git fetch origin master
+        
+        # Get the specific lines (21 and 33) from both the current and previous commits
+        CURRENT_LINE_21=$(git show HEAD:remote-storage.tf | sed -n '21p')
+        CURRENT_LINE_33=$(git show HEAD:remote-storage.tf | sed -n '33p')
+        PREVIOUS_LINE_21=$(git show HEAD~1:remote-storage.tf | sed -n '21p')
+        PREVIOUS_LINE_33=$(git show HEAD~1:remote-storage.tf | sed -n '33p')
+
+        # Compare and check if the values changed from true to false
+        if [[ "$CURRENT_LINE_21" == *"true"* && "$PREVIOUS_LINE_21" == *"false"* ]] || \
+           [[ "$CURRENT_LINE_33" == *"true"* && "$PREVIOUS_LINE_33" == *"false"* ]]; then
+          echo "Changes detected in remote-storage.tf. Triggering destroy."
+          echo "destroy=true" >> $GITHUB_ENV
+        else
+          echo "No changes detected that require destroy."
+          echo "destroy=false" >> $GITHUB_ENV
+        fi
+
+    # Terraform Plan (Runs only on push to master)
+    - name: Terraform Plan
+      if: github.event_name == 'push'
+      run: terraform plan -input=false -no-color
+
+    # Terraform Apply (Runs only on push to master)
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push' && env.destroy == 'false'
       run: terraform apply -auto-approve -input=false
+
+    # Terraform Destroy (Runs only if specific changes in remote-storage.tf are detected)
+    - name: Terraform Destroy
+      if: github.event_name == 'push' && env.destroy == 'true'
+      run: terraform destroy -auto-approve -input=false
