@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: ["master"]
   workflow_dispatch:  # Allows manual triggering of the workflow
-    inputs:
-      destroy:
-        description: 'Trigger destruction of resources'
-        required: false
-        default: 'false'
 
 permissions:
   contents: read
@@ -59,10 +54,9 @@ jobs:
     - name: Terraform Init
       run: terraform init -reconfigure
 
-    # Terraform Format (Make sure this doesn't stop the workflow on error)
+    # Terraform Format
     - name: Terraform Format
       run: terraform fmt -check
-      continue-on-error: true  # Allow the workflow to continue if formatting issues are found
 
     # Allow manual triggering of the destroy step through workflow_dispatch input
     - name: Set Destroy from Input
@@ -76,7 +70,7 @@ jobs:
           echo "destroy=false" >> $GITHUB_ENV
         fi
 
-    # Terraform Plan (Runs only on push to master)
+    # Terraform Plan (Runs only on push to master and does not destroy)
     - name: Terraform Plan
       if: github.event_name == 'push' && env.destroy == 'false'
       run: |
@@ -86,7 +80,7 @@ jobs:
           -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
           -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
-    # Terraform Apply (Runs only on push to master unless destroy is triggered)
+    # Terraform Apply (Runs only on push to master and does not destroy)
     - name: Terraform Apply
       if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.destroy == 'false'
       run: |
@@ -96,9 +90,9 @@ jobs:
           -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
           -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
-    # Terraform Destroy (Runs only if manually triggered or destroy flag is set)
+    # Terraform Destroy (Runs only if destroy=true is set via workflow_dispatch input)
     - name: Terraform Destroy
-      if: github.event_name == 'push' && env.destroy == 'true'
+      if: github.event_name == 'workflow_dispatch' && env.destroy == 'true'
       run: |
         terraform destroy -auto-approve -input=false \
           -var="ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" \
