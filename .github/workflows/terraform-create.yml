@@ -136,10 +136,12 @@ jobs:
           -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
           -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
-    # Run init-backend.sh after applying Terraform to move the state to the new backend
+    # Initialize Backend (Move state to new backend)
     - name: Initialize Backend (Move state to new backend)
       if: github.event_name == 'push' && env.destroy == 'false'  # This step runs only after apply
       run: |
         echo "Running init-backend.sh to initialize backend and move state to new remote storage."
         chmod +x ./init-backend.sh
+        # Set the environment variable to suppress interactive prompts
+        export TF_IN_AUTOMATION=true
         ./init-backend.sh
