@@ -15,6 +15,7 @@ env:
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
 jobs:
   terraform:
@@ -108,17 +109,32 @@ jobs:
     # Terraform Plan (Runs only on push to master)
     - name: Terraform Plan
       if: github.event_name == 'push'
-      run: terraform plan -input=false -no-color
+      run: |
+        terraform plan -input=false -no-color \
+          -var="ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" \
+          -var="ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" \
+          -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
+          -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
     # Terraform Apply (Runs only on push to master unless destroy is triggered)
     - name: Terraform Apply
       if: github.ref == 'refs/heads/master' && github.event_name == 'push' && env.destroy == 'false'
-      run: terraform apply -auto-approve -input=false
+      run: |
+        terraform apply -auto-approve -input=false \
+          -var="ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" \
+          -var="ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" \
+          -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
+          -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
     # Terraform Destroy (Runs only if specific changes in remote-storage.tf are detected or manually triggered)
     - name: Terraform Destroy
       if: github.event_name == 'push' && env.destroy == 'true'
-      run: terraform destroy -auto-approve -input=false
+      run: |
+        terraform destroy -auto-approve -input=false \
+          -var="ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" \
+          -var="ARM_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" \
+          -var="ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" \
+          -var="ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
 
     # Run init-backend.sh after applying Terraform to move the state to the new backend
     - name: Initialize Backend (Move state to new backend)
